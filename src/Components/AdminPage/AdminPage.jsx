@@ -14,6 +14,10 @@ const AdminPage = () => {
 
     const [dataItem, setDataItem] = useState()
 
+    const getApi = () => {
+        
+    }
+
     useEffect(() => {
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
             .then((res) => {
@@ -21,10 +25,10 @@ const AdminPage = () => {
             })
             .then((item) => setDataItem(item?.data))
             .catch((error) => {
-               
+
 
             })
-    },[dataItem])
+    })
 
     const [modal, setModal] = useState(false)
     const modalOpen = () => {
@@ -77,7 +81,7 @@ const AdminPage = () => {
             .then((data) => {
                 if (data?.success) {
                     toast.success(data?.message)
-                    setDataItem(dataItem)
+                    // setDataItem(dataItem)
                     setModal(false)
                 } else {
                     toast.error(data?.message)
@@ -87,13 +91,15 @@ const AdminPage = () => {
     }
 
     // Edit api
-    const [edit, setEdit] = useState()
+    const [edit, setEdit] = useState(false)
+    const isOpenHandle = () => {
+        setEdit(true)
+    }
 
     const [btnId, setBtnId] = useState()
 
     const editFunc = (e) => {
         e.preventDefault()
-        setEdit(true)
         fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/categories/${btnId}`, {
             method: "Put",
             headers: {
@@ -105,7 +111,7 @@ const AdminPage = () => {
             .then((dataEl) => {
                 if (dataEl?.success) {
                     toast.success(dataEl?.message)
-                    setDataItem(dataItem)
+                    getApi()
                     setEdit(false)
                 } else {
                     // toast.error(dataEl?.message)
@@ -148,11 +154,11 @@ const AdminPage = () => {
                 edit &&
                 <div className="modall">
                     <form onSubmit={editFunc} className="modall-content">
-                        <label className="form-label"> Name en:
-                            <input onChange={(e) => setNameEn(e?.target?.value)} required type="text" className="add-input" />
+                        <label className="form-label"> Name en:lll
+                            <input value={nameEn} onChange={(e) => setNameEn(e?.target?.value)} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Name en:
-                            <input onChange={(e) => setNameRu(e?.target?.value)} required type="text" className="add-input" />
+                            <input value={nameRu} onChange={(e) => setNameRu(e?.target?.value)} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
@@ -174,14 +180,14 @@ const AdminPage = () => {
                 <tbody>
                     {
                         dataItem?.map((elem, i) => (
-                            <tr key={i}>
+                            <tr  key={i}>
                                 <th className='pt-5'>{elem?.name_en}</th>
                                 <td className='pt-5'>{elem?.name_ru}</td>
                                 <td>
                                     <img className="table-img" src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${elem?.image_src}`} alt={elem?.name_en} />
                                 </td>
                                 <td className='pt-4 rename'>
-                                    <div className='d-inline' onClick={editFunc}>
+                                    <div onClick={isOpenHandle} className='d-inline'>
                                         <button onClick={() => setBtnId(elem?.id)} className="btn btn-light ps-4 pe-4">Edit</button>
                                     </div>
                                     <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3">Delete</button>

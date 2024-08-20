@@ -84,3 +84,8 @@
     border-radius: 10px;
     border: 1px solid rgb(158, 153, 153)
 }
+
+.table-block{
+    min-width: 100vh;
+    background-color: rgb(80, 81, 123)!important;
+}
