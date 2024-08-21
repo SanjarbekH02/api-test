@@ -1,39 +1,48 @@
+.admin-page{
+    margin-left: 300px;
+}
+
 .nav{
     width: 100%;
-    padding: 20px;
-    background-color: rgb(16, 16, 58);
+    padding:15px 20px;
+    background-color: rgb(236, 236, 244);
 }
 
 .logo{
-    color: white;
+    color: rgb(9, 9, 9);
 }
 
 .logout{
-    color: black;
+    color: rgb(255, 255, 255);
     padding: 5px 10px;
     width: 100px;
-    background-color: rgb(215, 209, 209);
+    background-color: rgb(48, 86, 242);
     border: none;
     border-radius: 30px;
     margin-left: auto;
 }
 
+.admin{
+    padding: 20px;
+}
+
 .logout:hover{
-    box-shadow: 0 0 3px 3px rgb(215, 213, 213);
-    color: rgb(109, 108, 108);
+    box-shadow: 0 0 3px 3px rgb(94, 59, 59);
+    color: rgb(0, 0, 0);
+    background-color: red;
 }
 
 .settings{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
+    padding:15px 20px;
     border-bottom: 1px solid rgb(68, 67, 67);
 }
 
 .table-img{
-    width: 120px;
-    height: 100px;
+    width: 80px;
+    height: 60px;
     border-radius: 8px;
 }
 
@@ -88,4 +97,13 @@
 .table-block{
     min-width: 100vh;
     background-color: rgb(80, 81, 123)!important;
+}
+
+.add:hover{
+    box-shadow: 0 0 3px 3px rgb(59, 67, 94);
+}
+
+.icon-size{
+    width: 20px;
+    height: 20px;
 }

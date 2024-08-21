@@ -3,6 +3,8 @@ import Edit from '../../img/edit.png'
 import { toast } from 'react-toastify';
 import './AdminPage.css'
 import { useNavigate } from 'react-router-dom';
+import { MdDelete, MdDeleteForever } from 'react-icons/md';
+import { FaRegEdit } from 'react-icons/fa';
 
 const AdminPage = () => {
     const navigate = useNavigate()
@@ -13,22 +15,33 @@ const AdminPage = () => {
 
 
     const [dataItem, setDataItem] = useState()
+    const [btnId, setBtnId] = useState()
 
     const getApi = () => {
-        
+
     }
 
+    const [values, setValues] = useState({
+        id: btnId,
+        name_en: '',
+        name_ru: ''
+    })
+    
+    
     useEffect(() => {
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
-            .then((res) => {
-                return res.json()
+        .then((res) => {
+            return res.json()
+        })
+        .then((item) => {
+            setDataItem(item?.data)
+            setValues({...values, name_en: item?.data?.name_en, name_ru: item?.data?.name_ru})
             })
-            .then((item) => setDataItem(item?.data))
             .catch((error) => {
 
 
             })
-    })
+    }, [dataItem])
 
     const [modal, setModal] = useState(false)
     const modalOpen = () => {
@@ -92,38 +105,59 @@ const AdminPage = () => {
 
     // Edit api
     const [edit, setEdit] = useState(false)
+
+
     const isOpenHandle = () => {
         setEdit(true)
     }
 
-    const [btnId, setBtnId] = useState()
+    const [imageSrc, setImageSrc] = useState('/path/to/image.jpg');
+
+    const updateImage = () => {
+        const timestamp = new Date().getTime();
+        setImageSrc(`/path/to/image.jpg?timestamp=${timestamp}`);
+    };
+
+    useEffect(() => {
+        updateImage();
+    }, [dataItem]);
 
     const editFunc = (e) => {
         e.preventDefault()
+
         fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/categories/${btnId}`, {
             method: "Put",
-            headers: {
-                "authorization": `Bearer ${tokenn}`
-            },
             body: formData,
+            headers: {
+                "authorization": `Bearer ${tokenn}`,
+            },
         })
-            .then((response => response.json()))
-            .then((dataEl) => {
+
+            .then(response => {
+                return response.json();
+            })
+            .then(dataEl => {
                 if (dataEl?.success) {
                     toast.success(dataEl?.message)
                     getApi()
                     setEdit(false)
                 } else {
-                    // toast.error(dataEl?.message)
+                    toast.error(dataEl?.message)
                 }
-            }
-            )
+            })
+            .catch(error => {
+            })
+            .finally(() => {
+            });
+
+
+
     }
 
 
 
     return (
-        <div className='d-print-flex'>
+        <div className='d-print-flex admin-page'>
             <div className="nav">
                 <h4 className="logo">Admin</h4>
                 <button onClick={logout} className='logout'>Logout</button>
@@ -154,11 +188,11 @@ const AdminPage = () => {
                 edit &&
                 <div className="modall">
                     <form onSubmit={editFunc} className="modall-content">
-                        <label className="form-label"> Name en:lll
-                            <input value={nameEn} onChange={(e) => setNameEn(e?.target?.value)} required type="text" className="add-input" />
+                        <label className="form-label"> Name en:
+                            <input value={values.name_en} onChange={(e) => setNameEn(e?.target?.value)} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Name en:
-                            <input value={nameRu} onChange={(e) => setNameRu(e?.target?.value)} required type="text" className="add-input" />
+                            <input value={values.name_ru} onChange={(e) => setNameRu(e?.target?.value)} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
@@ -168,36 +202,41 @@ const AdminPage = () => {
                 </div>
             }
 
-            <table class="table table-striped table-cars">
-                <thead className='table-item p-5'>
-                    <tr className='p-5'>
-                        <th scope="col">Name_en</th>
-                        <th scope="col">Name_ru</th>
-                        <th scope="col">Image</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        dataItem?.map((elem, i) => (
-                            <tr  key={i}>
-                                <th className='pt-5'>{elem?.name_en}</th>
-                                <td className='pt-5'>{elem?.name_ru}</td>
-                                <td>
-                                    <img className="table-img" src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${elem?.image_src}`} alt={elem?.name_en} />
-                                </td>
-                                <td className='pt-4 rename'>
-                                    <div onClick={isOpenHandle} className='d-inline'>
-                                        <button onClick={() => setBtnId(elem?.id)} className="btn btn-light ps-4 pe-4">Edit</button>
-                                    </div>
-                                    <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3">Delete</button>
-                                    {/* <img onClick={() => deleteFunc(elem?.id)} src={Delete} alt="" className="rename-img" /> */}
-                                </td>
-                            </tr>
-                        ))
-                    }
-                </tbody>
-            </table>
+            <div className="admin">
+                <table class="table table-striped table-cars ps-5">
+                    <thead className='table-item p-5'>
+                        <tr className='p-3'>
+                            <th scope="col">Name_en</th>
+                            <th scope="col">Name_ru</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            dataItem?.map((elem, i) => (
+                                <tr key={i}>
+                                    <th className='pt-4'>{elem?.name_en}</th>
+                                    <td className='pt-4'>{elem?.name_ru}</td>
+                                    <td>
+                                        <img className="table-img" src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${elem?.image_src}`} alt={elem?.name_en} />
+                                    </td>
+                                    <td className='pt-4 rename'>
+                                        <div onClick={isOpenHandle} className='d-inline'>
+                                            <button onClick={() => setBtnId(elem?.id)} className="btn btn-primary ps-3 pe-3">
+                                                <FaRegEdit className='icon-size' />
+                                            </button>
+                                        </div>
+                                        <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
+                                            <MdDeleteForever className='icon-size' />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
