@@ -14,15 +14,7 @@ const Brands = () => {
         navigate("/")
     }
 
-    const getApi = () => {
 
-    }
-
-    const [values, setValues] = useState({
-        id: btnId,
-        name_en: '',
-        name_ru: ''
-    })
 
 
     useEffect(() => {
@@ -32,7 +24,6 @@ const Brands = () => {
             })
             .then((item) => {
                 setDataItem(item?.data)
-                setValues({ ...values, name_en: item?.data?.name_en, name_ru: item?.data?.name_ru })
             })
             .catch((error) => {
 
@@ -45,10 +36,12 @@ const Brands = () => {
         setModal(true)
     }
 
-    const [title, setTitle] = useState()
+    const [title, setTitle] = useState({
+        title: '',
+    })
     const [picture, setPicture] = useState()
     const formData = new FormData()
-    formData.append("title", title)
+    formData.append("title", title?.title)
     formData.append("images", picture)
     const tokenn = localStorage.getItem("tokenItem")
     // Post Api
@@ -134,7 +127,6 @@ const Brands = () => {
             .then(dataEl => {
                 if (dataEl?.success) {
                     toast.success(dataEl?.message)
-                    getApi()
                     setEdit(false)
                 } else {
                     toast.error(dataEl?.message)
@@ -144,11 +136,12 @@ const Brands = () => {
             })
             .finally(() => {
             });
-
-
-
     }
 
+    const closeModal = (elem) => {
+        setModal(false)
+        setEdit(false)
+    }
 
 
     return (
@@ -158,20 +151,24 @@ const Brands = () => {
                 <button onClick={logout} className='logout'>Logout</button>
             </div>
             <div className="settings">
-                <h4 className="settings-title">Settings</h4>
+                <h4 className="settings-title">Brands</h4>
                 <button onClick={modalOpen} type='click' className="btn btn-primary  add">Add categories</button>
             </div>
             {
                 modal &&
                 <div className="modall">
-                    <form onSubmit={createCategory} className="modall-content">
+                    <form onSubmit={createCategory} className="modall-content h-50">
+                        <div onClick={closeModal} className="toggle-block">
+                            <div className="toggle"></div>
+                            <div className="toggle-line"></div>
+                        </div>
                         <label className="form-label"> Title:
-                            <input onChange={(e) => setTitle(e?.target?.value)} required type="text" className="add-input" />
+                            <input onChange={(e) => setTitle({ ...title, title: e?.target?.value })} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Dawnlaod</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Uplaod</button>
                     </form>
                 </div>
             }
@@ -179,14 +176,18 @@ const Brands = () => {
             {
                 edit &&
                 <div className="modall">
-                    <form onSubmit={editFunc} className="modall-content">
+                    <form onSubmit={editFunc} className="modall-content h-50">
+                        <div onClick={closeModal} className="toggle-block">
+                            <div className="toggle"></div>
+                            <div className="toggle-line"></div>
+                        </div>
                         <label className="form-label"> Title:
-                            <input value={values.name_en} onChange={(e) => setTitle(e?.target?.value)} required type="text" className="add-input" />
+                            <input value={title?.title} onChange={(e) => setTitle({ ...title, title: e?.target?.value })} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Edit</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Update</button>
                     </form>
                 </div>
             }
@@ -211,10 +212,12 @@ const Brands = () => {
                                         <img className="table-img" src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${elem?.image_src}`} alt={elem?.name_en} />
                                     </td>
                                     <td className='pt-4 rename'>
-                                        <div onClick={isOpenHandle} className='d-inline'>
-                                            <button onClick={() => setBtnId(elem?.id)} className="btn btn-primary ps-3 pe-3">
-                                                <FaRegEdit className='icon-size' />
-                                            </button>
+                                        <div onClick={() => setTitle(elem)} className='d-inline'>
+                                            <div onClick={isOpenHandle} className='d-inline'>
+                                                <button onClick={() => setBtnId(elem?.id)} className="btn btn-primary ps-3 pe-3">
+                                                    <FaRegEdit className='icon-size' />
+                                                </button>
+                                            </div>
                                         </div>
                                         <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
                                             <MdDeleteForever className='icon-size' />
@@ -229,6 +232,7 @@ const Brands = () => {
         </div>
     );
 }
+
 
 
 export default Brands;

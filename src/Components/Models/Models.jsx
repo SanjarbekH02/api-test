@@ -24,16 +24,16 @@ const Models = () => {
         name_en: '',
         name_ru: ''
     })
-    
-    
+
+
     useEffect(() => {
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/models")
-        .then((res) => {
-            return res.json()
-        })
-        .then((item) => {
-            setDataItem(item?.data)
-            setValues({...values, name_en: item?.data?.name_en, name_ru: item?.data?.name_ru})
+            .then((res) => {
+                return res.json()
+            })
+            .then((item) => {
+                setDataItem(item?.data)
+                setValues({ ...values, name_en: item?.data?.name_en, name_ru: item?.data?.name_ru })
             })
             .catch((error) => {
 
@@ -46,11 +46,14 @@ const Models = () => {
         setModal(true)
     }
 
-    const [nameModel, setNameModel] = useState()
-    const [brand_title, setBrand_title] = useState()
+    const [nameModel, setNameModel] = useState({
+        name: ''
+    })
+    const [brandName, setBrandName] = useState()
     const formData = new FormData()
-    formData.append("name", nameModel)
-    formData.append("brand_title", brand_title)
+    formData.append("name", nameModel?.name)
+    formData.append("brand_id", brandName)
+    // formData.append("brand_title", nameModel?.brand_title)
     const tokenn = localStorage.getItem("tokenItem")
     // Post Api
     const createCategory = (e) => {
@@ -140,7 +143,25 @@ const Models = () => {
 
     }
 
+    const closeModal = (elem) => {
+        setModal(false)
+        setEdit(false)
+    }
+    const [brends, setBrands] = useState()
 
+    useEffect(() => {
+        fetch("https://autoapi.dezinfeksiyatashkent.uz/api/brands")
+            .then((res) => {
+                return res.json()
+            })
+            .then((item) => {
+                setBrands(item?.data)
+            })
+            .catch((error) => {
+
+
+            })
+    }, [brends])
 
     return (
         <div className='d-print-flex admin-page'>
@@ -155,14 +176,25 @@ const Models = () => {
             {
                 modal &&
                 <div className="modall">
-                    <form onSubmit={createCategory} className="modall-content">
-                        <label className="form-label"> Name:
-                            <input onChange={(e) => setNameModel(e?.target?.value)} required type="text" className="add-input" />
+                    <form onSubmit={createCategory} className="modall-content h-50">
+                        <div onClick={closeModal} className="toggle-block">
+                            <div className="toggle"></div>
+                            <div className="toggle-line"></div>
+                        </div>
+                        <label className="form-label w-100"> Name:
+                            <input onChange={(e) => setNameModel({ ...nameModel, name: e?.target?.value })} required type="text" className="form-control w-100 outline-none" />
                         </label>
-                        <label className="form-label"> Brand title:
-                            <input onChange={(e) => setBrand_title(e?.target?.value)} required type="text" className="add-input" />
-                        </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Dawnlaod</button>
+                        <select onChange={(e) => setBrandName(e?.target?.value)} className="form-select w-100" aria-label="Default select example">
+                            <option selected>Select Brand</option>
+                            {
+                                brends?.map((item, id) => (
+                                    // console.log(item)
+                                    <option key={id} value={item?.id}>{item?.title}</option>
+
+                                ))
+                            }
+                        </select>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Uplaod</button>
                     </form>
                 </div>
             }
@@ -170,14 +202,23 @@ const Models = () => {
             {
                 edit &&
                 <div className="modall">
-                    <form onSubmit={editFunc} className="modall-content">
-                        <label className="form-label"> Name:
-                            <input value={values.name_en} onChange={(e) => setNameModel(e?.target?.value)} required type="text" className="add-input" />
+                    <form onSubmit={editFunc} className="modall-content h-50">
+                        <div onClick={closeModal} className="toggle-block">
+                            <div className="toggle"></div>
+                            <div className="toggle-line"></div>
+                        </div>
+                        <label className="form-label w-100 "> Name:
+                            <input value={nameModel?.name} onChange={(e) => setNameModel({ ...nameModel, name: e?.target?.value })} required type="text" className="form-control w-100" />
                         </label>
-                        <label className="form-label"> Brand title:
-                            <input value={values.name_ru} onChange={(e) => setBrand_title(e?.target?.value)} required type="text" className="add-input" />
-                        </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Edit</button>
+                        <select onChange={(e) => setNameModel({ ...nameModel, brand_id: e?.target?.value })} className="form-select " aria-label="Default select example">
+                            <option selected>Select Brand</option>
+                            {
+                                brends?.map((item, id) => (
+                                    <option key={id} value={item?.id}>{item?.title}</option>
+                                ))
+                            }
+                        </select>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Update</button>
                     </form>
                 </div>
             }
@@ -186,8 +227,8 @@ const Models = () => {
                 <table class="table table-striped table-cars ps-5">
                     <thead className='table-item p-5'>
                         <tr className='p-3'>
-                            <th scope="col">Name_en</th>
-                            <th scope="col">Name_ru</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Brand Title</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
@@ -195,15 +236,17 @@ const Models = () => {
                         {
                             dataItem?.map((elem, i) => (
                                 // console.log(elem)
-                                
+
                                 <tr key={i}>
                                     <th className='pt-4'>{elem?.name}</th>
                                     <td className='pt-4'>{elem?.brand_title}</td>
                                     <td className='pt-4 rename'>
-                                        <div onClick={isOpenHandle} className='d-inline'>
-                                            <button onClick={() => setBtnId(elem?.id)} className="btn btn-primary ps-3 pe-3">
-                                                <FaRegEdit className='icon-size' />
-                                            </button>
+                                        <div onClick={() => setNameModel(elem)} className="d-inline">
+                                            <div onClick={isOpenHandle} className='d-inline'>
+                                                <button onClick={() => setBtnId(elem?.id)} className="btn btn-primary ps-3 pe-3">
+                                                    <FaRegEdit className='icon-size' />
+                                                </button>
+                                            </div>
                                         </div>
                                         <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
                                             <MdDeleteForever className='icon-size' />

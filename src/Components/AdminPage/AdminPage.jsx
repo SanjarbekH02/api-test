@@ -13,6 +13,17 @@ const AdminPage = () => {
         navigate("/")
     }
 
+    const [nameEn, setNameEn] = useState({
+        name_en: '',
+        name_ru: ''
+    })
+    // const [nameRu, setNameRu] = useState()
+    const [picture, setPicture] = useState()
+    const formData = new FormData()
+    formData.append("name_en", nameEn.name_en)
+    formData.append("name_ru", nameEn.name_ru)
+    formData.append("images", picture)
+
 
     const [dataItem, setDataItem] = useState()
     const [btnId, setBtnId] = useState()
@@ -21,21 +32,17 @@ const AdminPage = () => {
 
     }
 
-    const [values, setValues] = useState({
-        id: btnId,
-        name_en: '',
-        name_ru: ''
-    })
-    
-    
+
+
+
+
     useEffect(() => {
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
-        .then((res) => {
-            return res.json()
-        })
-        .then((item) => {
-            setDataItem(item?.data)
-            setValues({...values, name_en: item?.data?.name_en, name_ru: item?.data?.name_ru})
+            .then((res) => {
+                return res.json()
+            })
+            .then((item) => {
+                setDataItem(item?.data)
             })
             .catch((error) => {
 
@@ -47,14 +54,6 @@ const AdminPage = () => {
     const modalOpen = () => {
         setModal(true)
     }
-
-    const [nameEn, setNameEn] = useState()
-    const [nameRu, setNameRu] = useState()
-    const [picture, setPicture] = useState()
-    const formData = new FormData()
-    formData.append("name_en", nameEn)
-    formData.append("name_ru", nameRu)
-    formData.append("images", picture)
     const tokenn = localStorage.getItem("tokenItem")
     // Post Api
     const createCategory = (e) => {
@@ -154,6 +153,11 @@ const AdminPage = () => {
 
     }
 
+    const closeModal = (elem) => {
+        setModal(false)
+        setEdit(false)
+    }
+
 
 
     return (
@@ -170,16 +174,20 @@ const AdminPage = () => {
                 modal &&
                 <div className="modall">
                     <form onSubmit={createCategory} className="modall-content">
+                        <div onClick={closeModal} className="toggle-block">
+                            <div className="toggle"></div>
+                            <div className="toggle-line"></div>
+                        </div>
                         <label className="form-label"> Name en:
-                            <input onChange={(e) => setNameEn(e?.target?.value)} required type="text" className="add-input" />
+                            <input onChange={(e) => setNameEn({ ...nameEn, name_en: e?.target?.value })} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Name en:
-                            <input onChange={(e) => setNameRu(e?.target?.value)} required type="text" className="add-input" />
+                            <input onChange={(e) => setNameEn({ ...nameEn, name_ru: e?.target?.value })} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Dawnlaod</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Uplaod</button>
                     </form>
                 </div>
             }
@@ -188,19 +196,24 @@ const AdminPage = () => {
                 edit &&
                 <div className="modall">
                     <form onSubmit={editFunc} className="modall-content">
+                        <div onClick={closeModal} className="toggle-block">
+                            <div className="toggle"></div>
+                            <div className="toggle-line"></div>
+                        </div>
                         <label className="form-label"> Name en:
-                            <input value={values.name_en} onChange={(e) => setNameEn(e?.target?.value)} required type="text" className="add-input" />
+                            <input value={nameEn?.name_en} onChange={(e) => setNameEn({ ...nameEn, name_en: e?.target?.value })} required type="text" className="add-input" />
                         </label>
-                        <label className="form-label"> Name en:
-                            <input value={values.name_ru} onChange={(e) => setNameRu(e?.target?.value)} required type="text" className="add-input" />
+                        <label className="form-label"> Name ru:
+                            <input value={nameEn?.name_ru} onChange={(e) => setNameEn({ ...nameEn, name_ru: e?.target?.value })} required type="text" className="add-input" />
                         </label>
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Edit</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Update</button>
                     </form>
                 </div>
             }
+
 
             <div className="admin">
                 <table class="table table-striped table-cars ps-5">
@@ -222,10 +235,12 @@ const AdminPage = () => {
                                         <img className="table-img" src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${elem?.image_src}`} alt={elem?.name_en} />
                                     </td>
                                     <td className='pt-4 rename'>
-                                        <div onClick={isOpenHandle} className='d-inline'>
-                                            <button onClick={() => setBtnId(elem?.id)} className="btn btn-primary ps-3 pe-3">
-                                                <FaRegEdit className='icon-size' />
-                                            </button>
+                                        <div onClick={() => setNameEn(elem)} className='d-inline'>
+                                            <div onClick={isOpenHandle} className='d-inline'>
+                                                <button onClick={() => setBtnId(elem?.id)} className="btn btn-primary ps-3 pe-3">
+                                                    <FaRegEdit className='icon-size' />
+                                                </button>
+                                            </div>
                                         </div>
                                         <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
                                             <MdDeleteForever className='icon-size' />
