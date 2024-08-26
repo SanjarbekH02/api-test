@@ -59,6 +59,7 @@ const AdminPage = () => {
     // Yangi kategoriya yaratish
     const createCategory = (e) => {
         e?.preventDefault();
+        setLaoding(false)
 
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories", {
             method: "POST",
@@ -81,7 +82,10 @@ const AdminPage = () => {
                     toast.error(element?.message);
                 }
             })
-            .catch((error) => console.error(error));
+            .catch((error) => console.error(error))
+            .finally(() => {
+                setLaoding(false); // Loaderni yashirish
+            })
     }
     // Delete Api
 
