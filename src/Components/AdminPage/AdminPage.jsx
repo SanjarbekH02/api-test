@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Edit from '../../img/edit.png'
 import { toast } from 'react-toastify';
 import './AdminPage.css'
+import Laoding from '../../img/SVKl.gif'
 import { useNavigate } from 'react-router-dom';
 import { MdDelete, MdDeleteForever } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
@@ -23,7 +23,7 @@ const AdminPage = () => {
     formData.append("name_en", nameEn.name_en)
     formData.append("name_ru", nameEn.name_ru)
     formData.append("images", picture)
-
+    const [laoding, setLaoding] = useState(true)
 
     const [dataItem, setDataItem] = useState()
     const [btnId, setBtnId] = useState()
@@ -32,58 +32,62 @@ const AdminPage = () => {
 
     }
 
-
-
-
-
-    useEffect(() => {
-        fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
-            .then((res) => {
-                return res.json()
-            })
-            .then((item) => {
-                setDataItem(item?.data)
-            })
-            .catch((error) => {
-
-
-            })
-    }, [dataItem])
-
     const [modal, setModal] = useState(false)
     const modalOpen = () => {
         setModal(true)
     }
     const tokenn = localStorage.getItem("tokenItem")
     // Post Api
+
+
+
+
+    // Ma'lumotlarni olish
+    useEffect(() => {
+        fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
+            .then((res) => res.json())
+            .then((item) => {
+                setDataItem(item?.data)
+                setLaoding(false)
+            })
+            .catch((error) => {
+                toast.error(error.message)
+                setLaoding(false)
+            });
+    }, []);
+
+    // Yangi kategoriya yaratish
     const createCategory = (e) => {
-        e?.preventDefault()
+        e?.preventDefault();
 
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories", {
-            method: "Post",
+            method: "POST",
             body: formData,
             headers: {
                 "Authorization": `Bearer ${tokenn}`
-                // "content-type" : "multipart/form/data"
             }
         })
             .then((resp) => resp.json())
             .then((element) => {
                 if (element?.success) {
-                    toast.success(element?.message)
-                    setDataItem(dataItem)
-                    setModal(false)
+                    toast.success(element?.message);
+                    // Ma'lumotlarni yangilash
+                    fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
+                        .then((res) => res.json())
+                        .then((item) => setDataItem(item?.data))
+                        .catch((error) => console.error(error))
+                    setModal(false);
                 } else {
-                    toast.error(element?.message)
+                    toast.error(element?.message);
                 }
             })
-
+            .catch((error) => console.error(error));
     }
     // Delete Api
 
 
-    const deleteFunc = (id) => {
-        fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/categories/${id}`, {
+    const deleteFunc = () => {
+        fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/categories/${btnId}`, {
             method: "Delete",
             headers: {
                 "authorization": `Bearer ${tokenn}`
@@ -93,10 +97,14 @@ const AdminPage = () => {
             .then((data) => {
                 if (data?.success) {
                     toast.success(data?.message)
-                    // setDataItem(dataItem)
-                    setModal(false)
+                    fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
+                        .then((res) => res.json())
+                        .then((item) => setDataItem(item?.data))
+                        .catch((error) => console.error(error));
+                    setDelModal(false)
                 } else {
                     toast.error(data?.message)
+                    setDelModal(false)
                 }
             }
             )
@@ -109,17 +117,6 @@ const AdminPage = () => {
     const isOpenHandle = () => {
         setEdit(true)
     }
-
-    const [imageSrc, setImageSrc] = useState('/path/to/image.jpg');
-
-    const updateImage = () => {
-        const timestamp = new Date().getTime();
-        setImageSrc(`/path/to/image.jpg?timestamp=${timestamp}`);
-    };
-
-    useEffect(() => {
-        updateImage();
-    }, [dataItem]);
 
     const editFunc = (e) => {
         e.preventDefault()
@@ -138,7 +135,9 @@ const AdminPage = () => {
             .then(dataEl => {
                 if (dataEl?.success) {
                     toast.success(dataEl?.message)
-                    getApi()
+                    fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
+                        .then((res) => res.json())
+                        .then((item) => setDataItem(item?.data))
                     setEdit(false)
                 } else {
                     toast.error(dataEl?.message)
@@ -158,10 +157,21 @@ const AdminPage = () => {
         setEdit(false)
     }
 
+    const [delModal, setDelModal] = useState(false)
 
+    const deleteMod = () => {
+        setDelModal(x => !x)
+    }
 
     return (
         <div className='d-print-flex admin-page'>
+
+            {
+                laoding &&
+                <div className="laoding">
+                    <img src={Laoding} alt="" className="laoding-img" />
+                </div>
+            }
             <div className="nav">
                 <h4 className="logo">Admin</h4>
                 <button onClick={logout} className='logout'>Logout</button>
@@ -214,6 +224,20 @@ const AdminPage = () => {
                 </div>
             }
 
+            {
+                delModal &&
+                <div className="modall">
+                    <div className="modall-content h-25">
+                        <h5 className="text-center">Are you sure you want to delete?</h5>
+                        <div className="modal-btn">
+                            <button onClick={deleteMod} className="btn btn-danger">Close</button>
+                            <div>
+                                <button onClick={deleteFunc} className="btn btn-primary">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
 
             <div className="admin">
                 <table class="table table-striped table-cars ps-5">
@@ -242,9 +266,11 @@ const AdminPage = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                        <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
-                                            <MdDeleteForever className='icon-size' />
-                                        </button>
+                                        <div className='d-inline' onClick={deleteMod}>
+                                            <button onClick={() => setBtnId(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
+                                                <MdDeleteForever className='icon-size' />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))

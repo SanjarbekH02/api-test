@@ -3,6 +3,7 @@ import { FaRegEdit } from 'react-icons/fa';
 import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Laoding from '../../img/SVKl.gif'
 
 const Brands = () => {
     const [dataItem, setDataItem] = useState()
@@ -14,8 +15,7 @@ const Brands = () => {
         navigate("/")
     }
 
-
-
+    const [laoding, setLaoding] = useState(true)
 
     useEffect(() => {
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/brands")
@@ -24,12 +24,13 @@ const Brands = () => {
             })
             .then((item) => {
                 setDataItem(item?.data)
+                setLaoding(false)
             })
             .catch((error) => {
-
-
+                toast.error(error)
+                setLaoding(false)
             })
-    }, [dataItem])
+    }, [])
 
     const [modal, setModal] = useState(false)
     const modalOpen = () => {
@@ -60,7 +61,10 @@ const Brands = () => {
             .then((element) => {
                 if (element?.success) {
                     toast.success(element?.message)
-                    setDataItem(dataItem)
+                    fetch("https://autoapi.dezinfeksiyatashkent.uz/api/brands")
+                        .then((res) => res.json())
+                        .then((item) => setDataItem(item?.data))
+                    setEdit(false)
                     setModal(false)
                 } else {
                     toast.error(element?.message)
@@ -71,8 +75,8 @@ const Brands = () => {
     // Delete Api
 
 
-    const deleteFunc = (id) => {
-        fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/brands/${id}`, {
+    const deleteFunc = () => {
+        fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/brands/${btnId}`, {
             method: "Delete",
             headers: {
                 "authorization": `Bearer ${tokenn}`
@@ -82,10 +86,13 @@ const Brands = () => {
             .then((data) => {
                 if (data?.success) {
                     toast.success(data?.message)
-                    // setDataItem(dataItem)
-                    setModal(false)
+                    fetch("https://autoapi.dezinfeksiyatashkent.uz/api/brands")
+                        .then((res) => res.json())
+                        .then((item) => setDataItem(item?.data))
+                    setDelModal(false)
                 } else {
                     toast.error(data?.message)
+                    setDelModal(false)
                 }
             }
             )
@@ -98,17 +105,6 @@ const Brands = () => {
     const isOpenHandle = () => {
         setEdit(true)
     }
-
-    const [imageSrc, setImageSrc] = useState('/path/to/image.jpg');
-
-    const updateImage = () => {
-        const timestamp = new Date().getTime();
-        setImageSrc(`/path/to/image.jpg?timestamp=${timestamp}`);
-    };
-
-    useEffect(() => {
-        updateImage();
-    }, [dataItem]);
 
     const editFunc = (e) => {
         e.preventDefault()
@@ -127,6 +123,9 @@ const Brands = () => {
             .then(dataEl => {
                 if (dataEl?.success) {
                     toast.success(dataEl?.message)
+                    fetch("https://autoapi.dezinfeksiyatashkent.uz/api/brands")
+                        .then((res) => res.json())
+                        .then((item) => setDataItem(item?.data))
                     setEdit(false)
                 } else {
                     toast.error(dataEl?.message)
@@ -142,10 +141,20 @@ const Brands = () => {
         setModal(false)
         setEdit(false)
     }
+    const [delModal, setDelModal] = useState(false)
 
+    const deleteMod = () => {
+        setDelModal(x => !x)
+    }
 
     return (
         <div className='d-print-flex admin-page'>
+            {
+                laoding &&
+                <div className="laoding">
+                    <img src={Laoding} alt="" className="laoding-img" />
+                </div>
+            }
             <div className="nav">
                 <h4 className="logo">Admin</h4>
                 <button onClick={logout} className='logout'>Logout</button>
@@ -192,6 +201,21 @@ const Brands = () => {
                 </div>
             }
 
+            {
+                delModal &&
+                <div className="modall">
+                    <div className="modall-content h-25">
+                        <h5 className="text-center">Are you sure you want to delete?</h5>
+                        <div className="modal-btn">
+                            <button onClick={deleteMod} className="btn btn-danger">Close</button>
+                            <div>
+                                <button onClick={deleteFunc} className="btn btn-primary">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <div className="admin">
                 <table class="table table-striped table-cars ps-5">
                     <thead className='table-item p-5'>
@@ -219,9 +243,11 @@ const Brands = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                        <button onClick={() => deleteFunc(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
-                                            <MdDeleteForever className='icon-size' />
-                                        </button>
+                                        <div className='d-inline' onClick={deleteMod}>
+                                            <button onClick={() => setBtnId(elem?.id)} className="btn btn-danger ms-3 ps-3 pe-3">
+                                                <MdDeleteForever className='icon-size' />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
