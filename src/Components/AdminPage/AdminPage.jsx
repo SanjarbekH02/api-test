@@ -5,6 +5,7 @@ import Laoding from '../../img/SVKl.gif'
 import { useNavigate } from 'react-router-dom';
 import { MdDelete, MdDeleteForever } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
+import Laod from '../../img/loading-waiting.gif'
 
 const AdminPage = () => {
     const navigate = useNavigate()
@@ -24,6 +25,7 @@ const AdminPage = () => {
     formData.append("name_ru", nameEn.name_ru)
     formData.append("images", picture)
     const [laoding, setLaoding] = useState(true)
+    const [laod, setLaod] = useState(false)
 
     const [dataItem, setDataItem] = useState()
     const [btnId, setBtnId] = useState()
@@ -60,7 +62,7 @@ const AdminPage = () => {
     const createCategory = (e) => {
         e?.preventDefault();
         setLaoding(false)
-
+        setLaod(true)
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories", {
             method: "POST",
             body: formData,
@@ -85,6 +87,7 @@ const AdminPage = () => {
             .catch((error) => console.error(error))
             .finally(() => {
                 setLaoding(false); // Loaderni yashirish
+                setLaod(false)
             })
     }
     // Delete Api
@@ -105,6 +108,7 @@ const AdminPage = () => {
                         .then((res) => res.json())
                         .then((item) => setDataItem(item?.data))
                         .catch((error) => console.error(error));
+                    setLaod(false)
                     setDelModal(false)
                 } else {
                     toast.error(data?.message)
@@ -124,7 +128,7 @@ const AdminPage = () => {
 
     const editFunc = (e) => {
         e.preventDefault()
-
+        setLaod(true)
         fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/categories/${btnId}`, {
             method: "Put",
             body: formData,
@@ -142,6 +146,7 @@ const AdminPage = () => {
                     fetch("https://autoapi.dezinfeksiyatashkent.uz/api/categories")
                         .then((res) => res.json())
                         .then((item) => setDataItem(item?.data))
+                    
                     setEdit(false)
                 } else {
                     toast.error(dataEl?.message)
@@ -150,6 +155,7 @@ const AdminPage = () => {
             .catch(error => {
             })
             .finally(() => {
+                setLaod(false)  
             });
 
 
@@ -168,7 +174,7 @@ const AdminPage = () => {
     }
 
     return (
-        <div className='d-print-flex admin-page'>
+        <div className='d-print-flex admin-page position-relative'>
 
             {
                 laoding &&
@@ -201,7 +207,12 @@ const AdminPage = () => {
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Uplaod</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">
+                            Uplaod  {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
                     </form>
                 </div>
             }
@@ -223,7 +234,12 @@ const AdminPage = () => {
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Update</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">
+                            Edit  {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
                     </form>
                 </div>
             }

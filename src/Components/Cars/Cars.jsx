@@ -4,6 +4,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Laoding from '../../img/SVKl.gif'
+import Laod from '../../img/loading-waiting.gif'
 
 const Cars = () => {
     const navigate = useNavigate()
@@ -20,6 +21,7 @@ const Cars = () => {
     const [location, setLocation] = useState()
     const [city, setCity] = useState()
     const [laoding, setLaoding] = useState(true)
+    const [laod, setLaod] = useState(false)
 
     // console.log(category);
 
@@ -101,8 +103,8 @@ const Cars = () => {
                 return res.json()
             })
             .then((item) => {
-                    setDataItem(item?.data)
-                    setLaoding(false)
+                setDataItem(item?.data)
+                setLaoding(false)
             })
             .catch((error) => {
                 toast.error(error.message)
@@ -172,7 +174,7 @@ const Cars = () => {
     // Post Api
     const createCategory = (e) => {
         e?.preventDefault()
-
+        setLaod(true)
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/cars", {
             method: "Post",
             body: formData,
@@ -193,6 +195,9 @@ const Cars = () => {
                 } else {
                     toast.error(element?.message)
                 }
+            })
+            .finally(() => {
+                setLaod(false)
             })
 
     }
@@ -230,7 +235,7 @@ const Cars = () => {
     }
     const editFunc = (e) => {
         e.preventDefault()
-
+        setLaod(true)
         fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/cars/${btnId}`, {
             method: "Put",
             body: formData,
@@ -256,6 +261,7 @@ const Cars = () => {
             .catch(error => {
             })
             .finally(() => {
+                setLaod(false)
             });
 
 
@@ -268,7 +274,7 @@ const Cars = () => {
     }
 
     return (
-        <div className='d-print-flex admin-page'>
+        <div className='d-print-flex admin-page position-relative'>
             {
                 laoding &&
                 <div className="laoding">
@@ -406,7 +412,12 @@ const Cars = () => {
                         <label className="mt-3 form-label">Upload the cover image
                             <input accept="image/png, image/jpeg" onChange={(e) => setcoverImg(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary m-0 mt-5 w-50 m-auto">Send</button>
+                        <button type='submit' className="add-btn btn btn-primary m-0 mt-5 w-50 m-auto">Send
+                            {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
 
                     </form>
                 </div>
@@ -535,7 +546,12 @@ const Cars = () => {
                         <label className="mt-3 form-label">Upload the cover image
                             <input accept="image/png, image/jpeg" onChange={(e) => setcoverImg(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary m-0 mt-5 w-50 m-auto">Send</button>
+                        <button type='submit' className="add-btn btn btn-primary m-0 mt-5 w-50 m-auto">Send
+                            {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
 
                     </form>
                 </div>
@@ -554,7 +570,7 @@ const Cars = () => {
                     </thead>
                     <tbody>
                         {
-                            dataItem?.map((elem, i) => (                                
+                            dataItem?.map((elem, i) => (
                                 <tr key={i}>
                                     <th className='pt-4'>{elem?.brand?.title}</th>
                                     <td className='pt-4'>{elem?.model?.name}</td>

@@ -4,6 +4,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Laoding from '../../img/SVKl.gif'
+import Laod from '../../img/loading-waiting.gif'
 
 const Cities = () => {
     const navigate = useNavigate()
@@ -14,6 +15,7 @@ const Cities = () => {
     const [dataItem, setDataItem] = useState()
     const [btnId, setBtnId] = useState()
     const [laoding, setLaoding] = useState(true)
+    const [laod, setLaod] = useState(false)
 
     useEffect(() => {
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/cities")
@@ -47,7 +49,7 @@ const Cities = () => {
     // Post Api
     const createCategory = (e) => {
         e?.preventDefault()
-
+        setLaod(true)
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/cities", {
             method: "Post",
             body: formData,
@@ -66,6 +68,9 @@ const Cities = () => {
                 } else {
                     toast.error(element?.message)
                 }
+            })
+            .finally(() => {
+                setLaod(false)
             })
 
     }
@@ -103,7 +108,7 @@ const Cities = () => {
 
     const editFunc = (e) => {
         e.preventDefault()
-
+        setLaod(true)
         fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/cities/${btnId}`, {
             method: "Put",
             body: formData,
@@ -128,6 +133,7 @@ const Cities = () => {
             .catch(error => {
             })
             .finally(() => {
+                setLaod(false)
             });
 
 
@@ -145,7 +151,7 @@ const Cities = () => {
     }
 
     return (
-        <div className='d-print-flex admin-page'>
+        <div className='d-print-flex admin-page position-relative'>
             {
                 laoding &&
                 <div className="laoding">
@@ -177,7 +183,12 @@ const Cities = () => {
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Dawnlaod</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Dawnlaod
+                            {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
                     </form>
                 </div>
             }
@@ -199,7 +210,12 @@ const Cities = () => {
                         <label className="form-label"> Chose file:
                             <input accept="image/png, image/jpeg" onChange={(e) => setPicture(e?.target?.files[0])} required type="file" className="add-file" />
                         </label>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Edit</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Edit
+                            {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
                     </form>
                 </div>
             }

@@ -4,6 +4,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Laoding from '../../img/SVKl.gif'
+import Laod from '../../img/loading-waiting.gif'
 
 const Models = () => {
     const navigate = useNavigate()
@@ -16,6 +17,7 @@ const Models = () => {
     const [dataItem, setDataItem] = useState()
     const [btnId, setBtnId] = useState()
     const [laoding, setLaoding] = useState(true)
+    const [laod, setLaod] = useState(false)
 
 
     useEffect(() => {
@@ -48,7 +50,7 @@ const Models = () => {
     // Post Api
     const createCategory = (e) => {
         e?.preventDefault()
-
+        setLaod(true)
         fetch("https://autoapi.dezinfeksiyatashkent.uz/api/models", {
             method: "Post",
             body: formData,
@@ -67,6 +69,9 @@ const Models = () => {
                 } else {
                     toast.error(element?.message)
                 }
+            })
+            .finally(() => {
+                setLaod(false)
             })
 
     }
@@ -107,7 +112,7 @@ const Models = () => {
 
     const editFunc = (e) => {
         e.preventDefault()
-
+        setLaod(true)
         fetch(`https://autoapi.dezinfeksiyatashkent.uz/api/models/${btnId}`, {
             method: "Put",
             body: formData,
@@ -133,10 +138,11 @@ const Models = () => {
             .catch(error => {
             })
             .finally(() => {
+                setLaod(false)
             });
     }
 
-    const closeModal = (elem) => {
+    const closeModal = () => {
         setModal(false)
         setEdit(false)
     }
@@ -163,7 +169,7 @@ const Models = () => {
     }
 
     return (
-        <div className='d-print-flex admin-page'>
+        <div className='d-print-flex admin-page position-relative'>
 
             {
                 laoding &&
@@ -200,7 +206,12 @@ const Models = () => {
                                 ))
                             }
                         </select>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Uplaod</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Uplaod
+                            {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
                     </form>
                 </div>
             }
@@ -224,7 +235,12 @@ const Models = () => {
                                 ))
                             }
                         </select>
-                        <button type='submit' className="add-btn btn btn-primary w-100">Update</button>
+                        <button type='submit' className="add-btn btn btn-primary w-100">Update
+                            {
+                                laod &&
+                                <img src={Laod} alt="Laoding..." className="laod" />
+                            }
+                        </button>
                     </form>
                 </div>
             }
